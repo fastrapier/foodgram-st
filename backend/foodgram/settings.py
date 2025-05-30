@@ -35,9 +35,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'user.apps.UserConfig'
+    'user.apps.UserConfig',
     'rest_framework',
-    'djoser'
+    'rest_framework.authtoken',
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -98,7 +99,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
+# https://docs.djangoproject
 
 LANGUAGE_CODE = 'en-us'
 
@@ -118,12 +119,17 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Кастомная модель пользователя
+AUTH_USER_MODEL = 'user.User'
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
 }
 
-SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('JWT',),
+DJOSER = {
+    'SEND_ACTIVATION_EMAIL': False,
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'LOGIN_FIELD': 'email',
 }
