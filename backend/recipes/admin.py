@@ -87,7 +87,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     def get_favorites_count(self, obj):
         """Количество добавлений в избранное."""
-        return obj.favorites.count()
+        return obj.favorited_by.count()
 
     get_favorites_count.short_description = 'В избранном'
 
