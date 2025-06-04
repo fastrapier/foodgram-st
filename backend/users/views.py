@@ -3,18 +3,22 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from djoser.views import UserViewSet as DjoserUserViewSet
 
-from recipes.models import Subscription
-from recipes.serializers import UserWithRecipesSerializer, SetAvatarSerializer, SetPasswordSerializer
-from .models import User
+from recipes.serializers import UserWithRecipesSerializer
+from .models import User, Subscription
+from .serializers import SetAvatarSerializer, SetPasswordSerializer
 
 
 class UserViewSet(DjoserUserViewSet):
     """ViewSet для работы с пользователями."""
-    
+
+    def get_permissions(self):
+        """Получение прав для действий."""
+        if self.action == 'list' or self.action == 'retrieve':
+            return []
+        return super().get_permissions()
+
     @action(
         detail=True,
         methods=['post', 'delete'],
@@ -23,13 +27,13 @@ class UserViewSet(DjoserUserViewSet):
     def subscribe(self, request, id=None):
         """Подписка/отписка от автора."""
         author = get_object_or_404(User, id=id)
-        
+
         if author == request.user:
             return Response(
                 {'errors': 'Нельзя подписаться на себя'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         if request.method == 'POST':
             subscription, created = Subscription.objects.get_or_create(
                 user=request.user,
@@ -40,17 +44,17 @@ class UserViewSet(DjoserUserViewSet):
                     {'errors': 'Вы уже подписаны на этого автора'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             serializer = UserWithRecipesSerializer(
-                author, 
+                author,
                 context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+
         # DELETE
         try:
             subscription = Subscription.objects.get(
-                user=request.user, 
+                user=request.user,
                 author=author
             )
             subscription.delete()
@@ -60,7 +64,7 @@ class UserViewSet(DjoserUserViewSet):
                 {'errors': 'Вы не подписаны на этого автора'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-    
+
     @action(
         detail=False,
         methods=['get'],
@@ -71,25 +75,25 @@ class UserViewSet(DjoserUserViewSet):
         subscriptions = Subscription.objects.filter(
             user=request.user
         ).select_related('author')
-        
+
         authors = [subscription.author for subscription in subscriptions]
         page = self.paginate_queryset(authors)
-        
+
         if page is not None:
             serializer = UserWithRecipesSerializer(
-                page, 
-                many=True, 
+                page,
+                many=True,
                 context={'request': request}
             )
             return self.get_paginated_response(serializer.data)
-        
+
         serializer = UserWithRecipesSerializer(
-            authors, 
-            many=True, 
+            authors,
+            many=True,
             context={'request': request}
         )
         return Response(serializer.data)
-    
+
     @action(
         detail=False,
         methods=['put', 'delete'],
@@ -99,25 +103,24 @@ class UserViewSet(DjoserUserViewSet):
     def avatar(self, request):
         """Установка/удаление аватара."""
         user = request.user
-        
+
         if request.method == 'PUT':
             serializer = SetAvatarSerializer(
-                user, 
-                data=request.data, 
-                partial=True
+                user,
+                data=request.data
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
-        
+
         # DELETE
         if user.avatar:
             user.avatar.delete()
             user.avatar = None
             user.save()
-        
+
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
     @action(
         detail=False,
         methods=['post'],

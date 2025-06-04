@@ -7,13 +7,13 @@ from recipes.models import ShortLink
 
 class ShortLinkRedirectView(RedirectView):
     """Редирект по короткой ссылке."""
-    
+
     permanent = False
-    
+
     def get_redirect_url(self, *args, **kwargs):
         """Получение URL для редиректа."""
         short_id = kwargs.get('short_id')
-        
+
         try:
             short_link = get_object_or_404(ShortLink, short_id=short_id)
             # Редирект на страницу рецепта

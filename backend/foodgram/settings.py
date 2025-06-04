@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-8(9zp@ie_46f)jo0$+awfa7_16+t&jnmi%h0*(e#eps@iybisx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["host.docker.internal", "localhost", "127.0.0.1"]
 
 # Application definition
 
@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'user.apps.UserConfig',
+    'users.apps.UsersConfig',
     'recipes.apps.RecipesConfig',
     'rest_framework',
     'rest_framework.authtoken',
@@ -127,12 +127,14 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Кастомная модель пользователя
-AUTH_USER_MODEL = 'user.User'
+AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'foodgram.pagination.CustomPageNumberPagination',
+    'PAGE_SIZE': 6,
 }
 
 DJOSER = {
@@ -140,6 +142,11 @@ DJOSER = {
     'ACTIVATION_URL': '#/activate/{uid}/{token}',
     'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
+    'SERIALIZERS': {
+        'user': 'users.serializers.UserSerializer',
+        'current_user': 'users.serializers.UserSerializer',
+        'user_list': 'users.serializers.UserSerializer',
+    },
 }
 
 # CORS settings

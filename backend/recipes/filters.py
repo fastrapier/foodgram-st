@@ -1,6 +1,6 @@
 import django_filters
 from django.db.models import Q
-from .models import Recipe, Ingredient
+from .models import Recipe, Ingredient, ShoppingCart
 
 
 class RecipeFilter(django_filters.FilterSet):
@@ -25,7 +25,11 @@ class RecipeFilter(django_filters.FilterSet):
     
     def filter_is_in_shopping_cart(self, queryset, name, value):
         if value and self.request.user.is_authenticated:
-            return queryset.filter(in_shopping_carts__user=self.request.user)
+            # Прямой запрос к модели ShoppingCart для более эффективной фильтрации
+            recipes_ids = ShoppingCart.objects.filter(
+                user=self.request.user
+            ).values_list('recipe_id', flat=True)
+            return queryset.filter(id__in=recipes_ids)
         return queryset
 
 

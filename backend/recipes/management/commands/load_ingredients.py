@@ -2,7 +2,8 @@ import json
 import csv
 import os
 from django.core.management.base import BaseCommand
-from recipes.models import Ingredient
+
+from backend.recipes.models import Ingredient
 
 
 class Command(BaseCommand):
@@ -18,7 +19,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         file_path = options['file']
-        
+
         if not os.path.exists(file_path):
             self.stdout.write(
                 self.style.ERROR(f'Файл {file_path} не найден')
@@ -39,7 +40,7 @@ class Command(BaseCommand):
         try:
             with open(file_path, 'r', encoding='utf-8') as file:
                 data = json.load(file)
-                
+
             ingredients = []
             for item in data:
                 ingredient = Ingredient(
@@ -47,12 +48,12 @@ class Command(BaseCommand):
                     measurement_unit=item['measurement_unit']
                 )
                 ingredients.append(ingredient)
-            
+
             Ingredient.objects.bulk_create(
-                ingredients, 
+                ingredients,
                 ignore_conflicts=True
             )
-            
+
             self.stdout.write(
                 self.style.SUCCESS(
                     f'Успешно загружено {len(ingredients)} ингредиентов из {file_path}'
@@ -68,7 +69,7 @@ class Command(BaseCommand):
         try:
             with open(file_path, 'r', encoding='utf-8') as file:
                 reader = csv.DictReader(file)
-                
+
                 ingredients = []
                 for row in reader:
                     ingredient = Ingredient(
@@ -76,12 +77,12 @@ class Command(BaseCommand):
                         measurement_unit=row['measurement_unit']
                     )
                     ingredients.append(ingredient)
-                
+
                 Ingredient.objects.bulk_create(
-                    ingredients, 
+                    ingredients,
                     ignore_conflicts=True
                 )
-                
+
                 self.stdout.write(
                     self.style.SUCCESS(
                         f'Успешно загружено {len(ingredients)} ингредиентов из {file_path}'

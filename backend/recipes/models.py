@@ -1,11 +1,12 @@
 from django.db import models
 from django.core.validators import MinValueValidator
-from user.models import User
+
+from users.models import User
 
 
 class Ingredient(models.Model):
     """Модель ингредиента."""
-    
+
     name = models.CharField('Название', max_length=128)
     measurement_unit = models.CharField('Единица измерения', max_length=64)
 
@@ -25,9 +26,9 @@ class Ingredient(models.Model):
 
 class Tag(models.Model):
     """Модель тега."""
-    
+
     name = models.CharField('Название', max_length=32, unique=True)
-    color = models.CharField('Цвет', max_length=7, help_text='Цвет в формате HEX')
+    color = models.CharField('Цвет', max_length=7, help_text='Цвет в формате HEX', default="#FFFFFF")
     slug = models.SlugField('Слаг', max_length=32, unique=True)
 
     class Meta:
@@ -40,10 +41,10 @@ class Tag(models.Model):
 
 class Recipe(models.Model):
     """Модель рецепта."""
-    
+
     author = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE, 
+        User,
+        on_delete=models.CASCADE,
         related_name='recipes',
         verbose_name='Автор'
     )
@@ -78,14 +79,14 @@ class Recipe(models.Model):
 
 class RecipeIngredient(models.Model):
     """Промежуточная модель для связи рецепта и ингредиента с количеством."""
-    
+
     recipe = models.ForeignKey(
-        Recipe, 
+        Recipe,
         on_delete=models.CASCADE,
         related_name='recipe_ingredients'
     )
     ingredient = models.ForeignKey(
-        Ingredient, 
+        Ingredient,
         on_delete=models.CASCADE,
         related_name='recipe_ingredients'
     )
@@ -110,14 +111,14 @@ class RecipeIngredient(models.Model):
 
 class Favorite(models.Model):
     """Модель избранного рецепта."""
-    
+
     user = models.ForeignKey(
-        User, 
+        User,
         on_delete=models.CASCADE,
         related_name='favorites'
     )
     recipe = models.ForeignKey(
-        Recipe, 
+        Recipe,
         on_delete=models.CASCADE,
         related_name='favorited_by'
     )
@@ -139,14 +140,14 @@ class Favorite(models.Model):
 
 class ShoppingCart(models.Model):
     """Модель корзины покупок."""
-    
+
     user = models.ForeignKey(
-        User, 
+        User,
         on_delete=models.CASCADE,
         related_name='shopping_cart'
     )
     recipe = models.ForeignKey(
-        Recipe, 
+        Recipe,
         on_delete=models.CASCADE,
         related_name='in_shopping_carts'
     )
@@ -166,42 +167,9 @@ class ShoppingCart(models.Model):
         return f"{self.user.email} добавил в корзину {self.recipe.name}"
 
 
-class Subscription(models.Model):
-    """Модель подписки на автора."""
-    
-    user = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE,
-        related_name='subscriptions'
-    )
-    author = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE,
-        related_name='subscribers'
-    )
-    created = models.DateTimeField('Дата подписки', auto_now_add=True)
-
-    class Meta:
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'author'],
-                name='unique_user_author_subscription'
-            ),
-            models.CheckConstraint(
-                check=~models.Q(user=models.F('author')),
-                name='cannot_subscribe_to_self'
-            )
-        ]
-
-    def __str__(self):
-        return f"{self.user.email} подписан на {self.author.email}"
-
-
 class ShortLink(models.Model):
     """Модель коротких ссылок на рецепты."""
-    
+
     recipe = models.OneToOneField(
         Recipe,
         on_delete=models.CASCADE,
