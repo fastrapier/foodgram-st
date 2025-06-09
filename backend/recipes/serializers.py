@@ -3,7 +3,8 @@ from rest_framework.exceptions import ValidationError
 from .models import (
     Recipe, Ingredient, Tag, RecipeIngredient,
     Favorite, ShoppingCart, ShortLink,
-    MIN_INGREDIENT_AMOUNT, MAX_INGREDIENT_AMOUNT
+    MIN_INGREDIENT_AMOUNT, MAX_INGREDIENT_AMOUNT,
+    MIN_COOKING_TIME, MAX_COOKING_TIME
 )
 from users.models import User, Subscription
 from foodgram.utils import Base64ImageField
@@ -102,7 +103,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         required=False
     )
     image = Base64ImageField()
-    cooking_time = serializers.IntegerField(min_value=1)
+    cooking_time = serializers.IntegerField(
+        min_value=MIN_COOKING_TIME,
+        max_value=MAX_COOKING_TIME
+    )
 
     class Meta:
         model = Recipe
