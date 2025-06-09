@@ -13,6 +13,7 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        ordering = ['name']
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'measurement_unit'],
@@ -34,6 +35,7 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -98,6 +100,7 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецептах'
+        ordering = ['recipe', 'ingredient']
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
@@ -127,6 +130,7 @@ class Favorite(models.Model):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
+        ordering = ['-created']
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
@@ -156,6 +160,7 @@ class ShoppingCart(models.Model):
     class Meta:
         verbose_name = 'Корзина покупок'
         verbose_name_plural = 'Корзина покупок'
+        ordering = ['-created']
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
@@ -181,6 +186,7 @@ class ShortLink(models.Model):
     class Meta:
         verbose_name = 'Короткая ссылка'
         verbose_name_plural = 'Короткие ссылки'
+        ordering = ['-created']
 
     def __str__(self):
         return f"Короткая ссылка для {self.recipe.name}"
