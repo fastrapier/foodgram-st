@@ -2,7 +2,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from .models import (
     Recipe, Ingredient, Tag, RecipeIngredient,
-    Favorite, ShoppingCart, ShortLink
+    Favorite, ShoppingCart, ShortLink,
+    MIN_INGREDIENT_AMOUNT, MAX_INGREDIENT_AMOUNT
 )
 from users.models import User, Subscription
 from foodgram.utils import Base64ImageField
@@ -42,7 +43,10 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для создания связи рецепт-ингредиент."""
 
     id = serializers.IntegerField()
-    amount = serializers.IntegerField(min_value=1)
+    amount = serializers.IntegerField(
+        min_value=MIN_INGREDIENT_AMOUNT,
+        max_value=MAX_INGREDIENT_AMOUNT
+    )
 
     class Meta:
         model = RecipeIngredient
