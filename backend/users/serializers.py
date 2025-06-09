@@ -55,7 +55,7 @@ class SetPasswordSerializer(serializers.Serializer):
     """Сериализатор для смены пароля."""
 
     current_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, min_length=8)
 
     def validate_current_password(self, value):
         user = self.context['request'].user
