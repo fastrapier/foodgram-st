@@ -63,13 +63,6 @@ class SetPasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError('Неверный текущий пароль')
         return value
 
-    def validate_new_password(self, value):
-        if len(value) < 8:
-            raise serializers.ValidationError(
-                'Пароль должен содержать минимум 8 символов'
-            )
-        return value
-
     def save(self):
         user = self.context['request'].user
         user.set_password(self.validated_data['new_password'])
