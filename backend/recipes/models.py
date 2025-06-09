@@ -7,6 +7,8 @@ from users.models import User
 # Константы для валидации
 MIN_COOKING_TIME = 1  # Минимальное время приготовления в минутах
 MAX_COOKING_TIME = 32000  # Максимальное время приготовления в минутах
+MIN_INGREDIENT_AMOUNT = 1  # Минимальное количество ингредиента
+MAX_INGREDIENT_AMOUNT = 32000  # Максимальное количество ингредиента
 
 
 class Ingredient(models.Model):
@@ -100,9 +102,12 @@ class RecipeIngredient(models.Model):
         on_delete=models.CASCADE,
         related_name='recipe_ingredients'
     )
-    amount = models.PositiveIntegerField(
+    amount = models.PositiveSmallIntegerField(
         'Количество',
-        validators=[MinValueValidator(1)]
+        validators=[
+            MinValueValidator(MIN_INGREDIENT_AMOUNT),
+            MaxValueValidator(MAX_INGREDIENT_AMOUNT)
+        ]
     )
 
     class Meta:
