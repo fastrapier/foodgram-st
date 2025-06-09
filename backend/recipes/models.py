@@ -1,7 +1,12 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from users.models import User
+
+
+# Константы для валидации
+MIN_COOKING_TIME = 1  # Минимальное время приготовления в минутах
+MAX_COOKING_TIME = 32000  # Максимальное время приготовления в минутах
 
 
 class Ingredient(models.Model):
@@ -55,7 +60,10 @@ class Recipe(models.Model):
     image = models.ImageField('Изображение', upload_to='recipes/images/')
     cooking_time = models.PositiveSmallIntegerField(
         'Время приготовления (мин)',
-        validators=[MinValueValidator(1)]
+        validators=[
+            MinValueValidator(MIN_COOKING_TIME),
+            MaxValueValidator(MAX_COOKING_TIME)
+        ]
     )
     ingredients = models.ManyToManyField(
         Ingredient,
