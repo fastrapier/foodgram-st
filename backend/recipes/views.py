@@ -179,9 +179,8 @@ class RecipeViewSet(ModelViewSet):
     )
     def download_shopping_cart(self, request):
         """Скачивание списка покупок."""
-        shopping_cart_recipes = ShoppingCart.objects.filter(
-            user=request.user
-        ).values_list('recipe', flat=True)
+        # Используем related_name для доступа к объектам корзины пользователя
+        shopping_cart_recipes = request.user.shopping_cart.values_list('recipe', flat=True)
 
         if not shopping_cart_recipes:
             return Response(
