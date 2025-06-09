@@ -72,9 +72,7 @@ class UserViewSet(DjoserUserViewSet):
     )
     def subscriptions(self, request):
         """Список подписок пользователя."""
-        subscriptions = Subscription.objects.filter(
-            user=request.user
-        ).select_related('author')
+        subscriptions = request.user.subscriptions.select_related('author')
 
         authors = [subscription.author for subscription in subscriptions]
         page = self.paginate_queryset(authors)

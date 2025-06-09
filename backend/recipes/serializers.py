@@ -219,10 +219,7 @@ class UserWithRecipesSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            return Subscription.objects.filter(
-                user=request.user,
-                author=obj
-            ).exists()
+            return request.user.subscriptions.filter(author=obj).exists()
         return False
 
     def get_avatar(self, obj):
