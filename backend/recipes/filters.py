@@ -43,5 +43,5 @@ class IngredientFilter(django_filters.FilterSet):
     
     def filter_name(self, queryset, name, value):
         if value:
-            return queryset.filter(name__icontains=value)
+            return queryset.filter(name__istartswith=value)
         return queryset

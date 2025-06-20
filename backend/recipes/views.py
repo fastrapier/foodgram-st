@@ -83,6 +83,30 @@ class RecipeViewSet(ModelViewSet):
                 'details': getattr(e, 'detail', str(e))
             }, status=status.HTTP_400_BAD_REQUEST)
 
+    def update(self, request, *args, **kwargs):
+        """Обновление существующего рецепта."""
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # Если был использован prefetch_related, сбрасываем кеш
+            instance._prefetched_objects_cache = {}
+
+        # Принудительно используем RecipeListSerializer для формирования ответа
+        response_serializer = RecipeListSerializer(
+            instance,
+            context={'request': request, 'exclude_tags': True}
+        )
+        return Response(response_serializer.data)
+
+    def partial_update(self, request, *args, **kwargs):
+        """Частичное обновление существующего рецепта."""
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         """Выполнение создания объекта."""
         serializer.save(author=self.request.user)

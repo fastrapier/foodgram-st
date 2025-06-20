@@ -11,6 +11,14 @@ services:
     env_file: ./.env
     volumes:
       - pg_database_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"  # Открываем порт PostgreSQL
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
 
   frontend:
     build: ../frontend
@@ -19,12 +27,15 @@ services:
 
   backend:
     depends_on:
-      - db
+      db:
+        condition: service_healthy  # Запуск только когда db будет здоров
     build: ../backend
     env_file: ./.env
     volumes:
       - static:/backend_static
       - media:/app/media
+      - ../data:/app/data  # Монтируем директорию data для доступа к ingredients.json
+    restart: always
 
   nginx:
     image: nginx:1.25.4-alpine
@@ -39,3 +50,4 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static:/static/
       - media:/media/
+    restart: always
